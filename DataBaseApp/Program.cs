@@ -1,8 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using DataBaseApp.Connections;
 using DateBaseSQL.Metods;
-using Microsoft.AspNetCore.Http.HttpResults;
-using System.Diagnostics.Metrics;
-using DataBaseApp.Connections;
+using Newtonsoft.Json;
 
 public static class Program
 {
@@ -12,19 +10,19 @@ public static class Program
         File.WriteAllText("appsettings.json", "{\n  \"ConnectionString\": {\n    \"PgConnection\": \"\"\n  }\n}");
 
         Console.ForegroundColor = ConsoleColor.Green;
-        Console.Write("           Host (localhost): ");
+        Console.Write("Host (localhost): ");
         string host = Console.ReadLine();
 
-        Console.Write("           Port (5432): ");
+        Console.Write("Port (5432): ");
         string port = Console.ReadLine();
 
-        Console.Write("           Database nomi (Name): ");
+        Console.Write("Database nomi (Name): ");
         string database = Console.ReadLine();
 
-        Console.Write("           User ID (postgres): ");
+        Console.Write("User ID (postgres): ");
         string userId = Console.ReadLine();
 
-        Console.Write("           Password: ");
+        Console.Write("Password: ");
         string password = Console.ReadLine();
         Console.Clear();
 
@@ -50,13 +48,11 @@ public static class Program
         Console.WriteLine("          Sechmas");
         List<string> Buyruqlar = new List<string>
         {
-            "          Create Table          ",
-            "           List Table           ",
-            "           Alter Table          ",
-            "          Delete Table          ",
-            "    Elementlar bilan ishlash    "
-
-
+            "Create Table",
+            "List Table",
+            "Alter Table",
+            "Delete Table",
+            "Elementlar bilan ishlash"
         };
 
         while (!exit)
@@ -66,7 +62,7 @@ public static class Program
             {
                 if (i == selectedIndex)
                 {
-                    Console.BackgroundColor = ConsoleColor.Green;
+                    Console.BackgroundColor = ConsoleColor.White;
                     Console.ForegroundColor = ConsoleColor.Black;
                 }
 
@@ -104,7 +100,7 @@ public static class Program
                         Class1.Elements(connectionString);
                         break;
                     default:
-                        Console.WriteLine("XATO!!!");
+                        Console.WriteLine("Error!!!");
                         break;
 
                 }

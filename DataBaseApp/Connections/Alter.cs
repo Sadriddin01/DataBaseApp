@@ -2,9 +2,6 @@
 using Npgsql;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DataBaseApp.Connections
 {
@@ -150,6 +147,11 @@ namespace DataBaseApp.Connections
                 Console.WriteLine($"Xatolik yuz berdi: {ex.Message}");
                 Console.ResetColor();
             }
+        }
+
+        private static void ExecuteNonQuery(NpgsqlConnection connection, string addColumnQuery)
+        {
+            throw new NotImplementedException();
         }
     }
 }
