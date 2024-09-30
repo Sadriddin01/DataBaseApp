@@ -1,5 +1,8 @@
-﻿using DateBaseSQL.Metods;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
+using DateBaseSQL.Metods;
+using Microsoft.AspNetCore.Http.HttpResults;
+using System.Diagnostics.Metrics;
+using DataBaseApp.Connections;
 
 public static class Program
 {
@@ -8,27 +11,24 @@ public static class Program
 
         File.WriteAllText("appsettings.json", "{\n  \"ConnectionString\": {\n    \"PgConnection\": \"\"\n  }\n}");
 
-        //*onsole.BackgroundColor = ConsoleColor.Green;*/
-        //Console.ForegroundColor = ConsoleColor.Green;
-        Console.Write("Host (localhost): ");
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.Write("           Host (localhost): ");
         string host = Console.ReadLine();
 
-        Console.Write("Port (5432): ");
+        Console.Write("           Port (5432): ");
         string port = Console.ReadLine();
 
-        Console.Write("Database Name (Name): ");
+        Console.Write("           Database nomi (Name): ");
         string database = Console.ReadLine();
 
-        Console.Write("User ID (postgres): ");
+        Console.Write("           User ID (postgres): ");
         string userId = Console.ReadLine();
 
-        Console.Write("Password: ");
+        Console.Write("           Password: ");
         string password = Console.ReadLine();
-        //Console.BackgroundColor = ConsoleColor.Green;
-        //Console.ForegroundColor = ConsoleColor.Black;
         Console.Clear();
-        string connectionString = $"Host={host};Port={port};Database={database};User Id={userId};Password={password};";
 
+        string connectionString = $"Host={host};Port={port};Database={database};User Id={userId};Password={password};";
 
         var appSettings = new
         {
@@ -44,25 +44,19 @@ public static class Program
         var loadedSettings = JsonConvert.DeserializeObject<dynamic>(File.ReadAllText("appsettings.json"));
         string pgConnection = loadedSettings.ConnectionString.PgConnection;
 
-        //Console.WriteLine("Nima kerak: ");
-        //string Category = Console.ReadLine();
-        //var query = $"SELECT * FROM {Category}";
-        //Select.Selects(pgConnection, query);
-
-        //Select.GetTableNames(connectionString);
-
 
         bool exit = false;
         int selectedIndex = 0;
-        Console.WriteLine("-------------Schemas-------------");
+        Console.WriteLine("          Sechmas");
         List<string> Buyruqlar = new List<string>
         {
-            "Create Table",
-            "List Table",
-            "Alter Table",
-            "Table Sturucture",
-            "What's in the Table",
-            "Delete Table"
+            "          Create Table          ",
+            "           List Table           ",
+            "           Alter Table          ",
+            "          Delete Table          ",
+            "    Elementlar bilan ishlash    "
+
+
         };
 
         while (!exit)
@@ -72,8 +66,8 @@ public static class Program
             {
                 if (i == selectedIndex)
                 {
-                    Console.BackgroundColor = ConsoleColor.White;
-                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.BackgroundColor = ConsoleColor.Green;
+                    Console.ForegroundColor = ConsoleColor.Black;
                 }
 
                 Console.WriteLine(Buyruqlar[i]);
@@ -95,31 +89,28 @@ public static class Program
                 switch (selectedIndex)
                 {
                     case 0:
-                        Console.WriteLine("Creating Table");
-                        Select.CreateTable(connectionString);
+                        Create.Createtable(connectionString);
                         break;
                     case 1:
-                        Console.WriteLine("Table Lists");
                         Select.GetTableNames(connectionString);
                         break;
                     case 2:
-                        Console.WriteLine("Alter Table");
-                        Select.AlterTable(connectionString);
+                        Alter.AlterTable(connectionString);
                         break;
                     case 3:
-                        Console.WriteLine("Table Structure");
-                        Select.TableStructure(connectionString);
+                        Console.WriteLine();
                         break;
                     case 4:
-                        Console.WriteLine("In the table: ");
-                        Select.GetAbout(connectionString);
+                        Class1.Elements(connectionString);
                         break;
-                    case 5:
-                        Console.WriteLine("table DELETING");
-                        Select.DeleteTable(connectionString);
+                    default:
+                        Console.WriteLine("XATO!!!");
                         break;
+
                 }
+
                 Console.ReadKey();
+
             }
         }
         Console.Clear();
