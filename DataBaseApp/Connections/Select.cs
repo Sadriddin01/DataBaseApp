@@ -1,11 +1,10 @@
 ﻿using Npgsql;
 using System.Data;
 
-namespace DateBaseSQL.Metods
+namespace DateBaseSQL.Methods
 {
     public partial class Select
     {
-
         public static void GetTableNames(string connectionString)
         {
             Console.Clear();
@@ -16,46 +15,46 @@ namespace DateBaseSQL.Metods
                     connection.Open();
                     using (NpgsqlCommand command = connection.CreateCommand())
                     {
-                        var item = connection.GetSchema("Tables");
-                        foreach (DataRow table in item.Rows)
+                        var schema = connection.GetSchema("Tables");
+                        foreach (DataRow table in schema.Rows)
                         {
                             Console.ForegroundColor = ConsoleColor.Green;
                             Console.WriteLine(table["TABLE_NAME"]);
                         }
-
                     }
-                    Console.Write("\nKo'rsatmoqchi bo'lgan Table nomini kiriting: ");
+
+                    Console.Write("\nEnter the name of the table you want to display: ");
                     string tableName = Console.ReadLine();
                     GetTableData(connectionString, tableName);
 
-                    Console.Write("\nQaysi Tabledagi columnlarni kormoqchisiz?: ");
+                    Console.Write("\nWhich table's columns do you want to view?: ");
                     string columnName = Console.ReadLine();
                     if (NotExist(connectionString, tableName))
                     {
                         Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine("Bunday nomdagi Table yuq!!!");
+                        Console.WriteLine("There is no table with that name!");
                         Console.ResetColor();
                     }
                     else
                     {
                         GetTableColumns(connectionString, tableName);
-
                     }
                 }
             }
             catch (NpgsqlException npgEx)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"Npgsql xatosi: {npgEx.Message}");
+                Console.WriteLine($"Npgsql error: {npgEx.Message}");
                 Console.ResetColor();
             }
             catch (Exception ex)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"Xatolik yuz berdi: {ex.Message}");
+                Console.WriteLine($"Error occurred: {ex.Message}");
                 Console.ResetColor();
             }
         }
+
         public static void GetTableColumns(string connectionString, string tableName)
         {
             Console.Clear();
@@ -67,7 +66,7 @@ namespace DateBaseSQL.Metods
                     using (NpgsqlCommand command = connection.CreateCommand())
                     {
                         var schema = connection.GetSchema("Columns", new string[] { null, null, tableName, null });
-                        Console.WriteLine($"\n'{tableName}' Tabledagi columnlar:");
+                        Console.WriteLine($"\nColumns in the '{tableName}' table:");
                         foreach (DataRow column in schema.Rows)
                         {
                             Console.ForegroundColor = ConsoleColor.Yellow;
@@ -78,25 +77,20 @@ namespace DateBaseSQL.Metods
 
                     connection.Close();
                 }
-
-
-
             }
             catch (NpgsqlException npgEx)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"Npgsql xatosi: {npgEx.Message}");
+                Console.WriteLine($"Npgsql error: {npgEx.Message}");
                 Console.ResetColor();
             }
             catch (Exception ex)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"Xatolik yuz berdi: {ex.Message}");
+                Console.WriteLine($"Error occurred: {ex.Message}");
                 Console.ResetColor();
             }
         }
-
-
 
         public static bool NotExist(string connectionString, string tableName)
         {
@@ -123,13 +117,12 @@ namespace DateBaseSQL.Metods
             catch (Exception ex)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"Xatolik yuz berdi: {ex.Message}");
+                Console.WriteLine($"Error occurred: {ex.Message}");
                 Console.ResetColor();
             }
 
             return tableNotExist;
         }
-
 
         public static void GetTableData(string connectionString, string tableName)
         {
@@ -141,12 +134,11 @@ namespace DateBaseSQL.Metods
                     connection.Open();
                     using (NpgsqlCommand command = connection.CreateCommand())
                     {
-
                         command.CommandText = $"SELECT * FROM \"{tableName}\"";
 
                         using (var reader = command.ExecuteReader())
                         {
-                            // Ustun nomlarini chiqarish
+                            // Display column names
                             Console.ForegroundColor = ConsoleColor.Cyan;
                             for (int i = 0; i < reader.FieldCount; i++)
                             {
@@ -155,7 +147,7 @@ namespace DateBaseSQL.Metods
                             Console.WriteLine();
                             Console.ResetColor();
 
-
+                            // Display rows of data
                             while (reader.Read())
                             {
                                 for (int i = 0; i < reader.FieldCount; i++)
@@ -173,16 +165,15 @@ namespace DateBaseSQL.Metods
             catch (NpgsqlException npgEx)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"Npgsql xatosi: {npgEx.Message}");
+                Console.WriteLine($"Npgsql error: {npgEx.Message}");
                 Console.ResetColor();
             }
             catch (Exception ex)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"Xatolik yuz berdi: {ex.Message}");
+                Console.WriteLine($"Error occurred: {ex.Message}");
                 Console.ResetColor();
             }
         }
-
     }
 }

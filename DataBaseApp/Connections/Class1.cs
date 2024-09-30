@@ -2,9 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DateBaseSQL.Metods;
+using DateBaseSQL.Methods;
 
 namespace DataBaseApp.Connections
 {
@@ -12,60 +10,59 @@ namespace DataBaseApp.Connections
     {
         public static void Elements(string connectionString)
         {
+            // Retrieve and display available table names
             Select.GetTableNames(connectionString);
-            Console.WriteLine("Tableni tanlang: ");
+            Console.WriteLine("Choose the table: ");
             string tableName = Console.ReadLine();
+
+            // Check if the selected table exists
             if (Select.NotExist(connectionString, tableName))
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Bunday nomdagi Table yuq!!!");
+                Console.WriteLine("The table with that name does not exist!");
                 Console.ResetColor();
             }
             else
             {
+                // Display data from the selected table
                 Select.GetTableData(connectionString, tableName);
-
             }
-
-
         }
 
         public static void GetColumnData(string connectionString, string tableName, string columnName)
         {
-
             try
             {
                 using (var connection = new NpgsqlConnection(connectionString))
                 {
                     connection.Open();
-                    using (NpgsqlCommand command = connection.CreateCommand())
+                    using (var command = connection.CreateCommand())
                     {
-                        command.CommandText = $"SELECT \"*\" FROM \"{tableName}\"";
+                        command.CommandText = $"SELECT * FROM \"{tableName}\"";  // Retrieve all data from the table
                         using (var reader = command.ExecuteReader())
                         {
                             Console.ForegroundColor = ConsoleColor.Cyan;
-                            Console.WriteLine($"\n'{tableName}' jadvalidagi '{columnName}' ustunidagi ma'lumotlar:");
+                            Console.WriteLine($"\nData in the column '{columnName}' of table '{tableName}':");
                             while (reader.Read())
                             {
-                                Console.WriteLine(reader[columnName].ToString());
+                                Console.WriteLine(reader[columnName].ToString());  // Print each value in the specified column
                             }
                             Console.ResetColor();
                         }
                     }
-
                     connection.Close();
                 }
             }
             catch (NpgsqlException npgEx)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"Npgsql xatosi: {npgEx.Message}");
+                Console.WriteLine($"Npgsql error: {npgEx.Message}");
                 Console.ResetColor();
             }
             catch (Exception ex)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"Xatolik yuz berdi: {ex.Message}");
+                Console.WriteLine($"An error occurred: {ex.Message}");
                 Console.ResetColor();
             }
         }
@@ -78,22 +75,22 @@ namespace DataBaseApp.Connections
                 {
                     connection.Open();
 
-                    // SQL UPDATE so'rovini yaratish
+                    // Create the SQL UPDATE query
                     var setClauses = string.Join(", ", newData.Keys.Select(key => $"\"{key}\" = @{key}"));
                     string query = $"UPDATE \"{tableName}\" SET {setClauses} WHERE \"{conditionColumn}\" = @conditionValue";
 
                     using (var command = new NpgsqlCommand(query, connection))
                     {
-                        // Parametrlarni qo'shish
+                        // Add parameters to the query
                         foreach (var entry in newData)
                         {
                             command.Parameters.AddWithValue($"@{entry.Key}", entry.Value);
                         }
                         command.Parameters.AddWithValue("@conditionValue", conditionValue);
 
-                        // So'rovni bajarish
+                        // Execute the query and print how many rows were updated
                         int rowsAffected = command.ExecuteNonQuery();
-                        Console.WriteLine($"{rowsAffected} qatorlar yangilandi.");
+                        Console.WriteLine($"{rowsAffected} rows updated.");
                     }
 
                     connection.Close();
@@ -102,13 +99,13 @@ namespace DataBaseApp.Connections
             catch (NpgsqlException npgEx)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"Npgsql xatosi: {npgEx.Message}");
+                Console.WriteLine($"Npgsql error: {npgEx.Message}");
                 Console.ResetColor();
             }
             catch (Exception ex)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"Xatolik yuz berdi: {ex.Message}");
+                Console.WriteLine($"An error occurred: {ex.Message}");
                 Console.ResetColor();
             }
         }

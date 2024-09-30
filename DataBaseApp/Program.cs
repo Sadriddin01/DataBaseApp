@@ -1,5 +1,5 @@
 ﻿using DataBaseApp.Connections;
-using DateBaseSQL.Metods;
+using DateBaseSQL.Methods;
 using Newtonsoft.Json;
 
 public static class Program
@@ -52,7 +52,8 @@ public static class Program
             "List Table",
             "Alter Table",
             "Delete Table",
-            "Elementlar bilan ishlash"
+            "Working with Elements",
+            "Insert into Column"
         };
 
         while (!exit)
@@ -85,7 +86,7 @@ public static class Program
                 switch (selectedIndex)
                 {
                     case 0:
-                        Create.Createtable(connectionString);
+                        Create.CreateTable(connectionString);
                         break;
                     case 1:
                         Select.GetTableNames(connectionString);
@@ -99,6 +100,10 @@ public static class Program
                     case 4:
                         Class1.Elements(connectionString);
                         break;
+                    case 5: 
+                        Insert.InsertIntoColumn(connectionString);
+                        break;
+
                     default:
                         Console.WriteLine("Error!!!");
                         break;

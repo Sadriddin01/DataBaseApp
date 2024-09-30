@@ -1,7 +1,5 @@
-﻿using DateBaseSQL.Metods;
+﻿using DateBaseSQL.Methods;
 using Npgsql;
-using System;
-using System.Collections.Generic;
 
 namespace DataBaseApp.Connections
 {
@@ -16,29 +14,28 @@ namespace DataBaseApp.Connections
                 {
                     connection.Open();
                     Select.GetTableNames(connectionString);
-                    Console.Write("O'zgartirmoqchi bo'lgan Table nomini kiriting: ");
+                    Console.Write("Choose the table you want to alter: ");
                     string tableName = Console.ReadLine();
-                    Console.WriteLine("\nJadvalni o'zgartirish uchun quyidagi variantlardan birini tanlang:");
-                    Console.WriteLine("1. Column qo'shish");
-                    Console.WriteLine("2. Columnni o'chirish");
-                    Console.WriteLine("3. Columnni qayta nomlash");
-                    Console.WriteLine("4. Tableni qayta nomlash");
-                    Console.WriteLine("5. Columnni turini o'zgartirish");
+                    Console.WriteLine("\nSelect one of the following options to alter the table:");
+                    Console.WriteLine("1. Add Column");
+                    Console.WriteLine("2. Delete Column");
+                    Console.WriteLine("3. Rename Column");
+                    Console.WriteLine("4. Rename Table");
+                    Console.WriteLine("5. Change Column Type");
 
                     string option = Console.ReadLine();
 
                     switch (option)
                     {
-
                         case "1":
                             Console.Clear();
-                            Console.Write("Qo'shmoqchi bo'lgan column nomini kiriting: ");
+                            Console.Write("Enter the name of the column to add: ");
                             string newColumnName = Console.ReadLine();
 
-                            Console.WriteLine("Column type'ini tanlang:");
+                            Console.WriteLine("Select the data type of the column:");
                             Console.WriteLine("1. VARCHAR(255)");
                             Console.WriteLine("2. INTEGER");
-                            Console.Write("Tanlash uchun raqamni kiriting: ");
+                            Console.Write("Enter the corresponding number: ");
                             string dataType = "";
 
                             switch (Console.ReadLine())
@@ -50,85 +47,81 @@ namespace DataBaseApp.Connections
                                     dataType = "INTEGER";
                                     break;
                                 default:
-                                    Console.WriteLine("Noto'g'ri tanlov. Standart VARCHAR(255) tanlandi.");
+                                    Console.WriteLine("Invalid choice. Defaulting to VARCHAR(255).");
                                     dataType = "VARCHAR(255)";
                                     break;
                             }
 
                             string addColumnQuery = $"ALTER TABLE {tableName} ADD COLUMN {newColumnName} {dataType};";
-
                             ExecuteNonQuery(connection, addColumnQuery);
-                            Console.WriteLine($"Column '{newColumnName}' muvaffaqiyatli qo'shildi.");
+                            Console.WriteLine($"Column '{newColumnName}' added successfully.");
                             break;
 
                         case "2":
                             Console.Clear();
-                            Console.Write("O'chirmoqchi bo'lgan column nomini kiriting: ");
+                            Console.Write("Enter the name of the column to delete: ");
                             string dropColumnName = Console.ReadLine();
 
                             string dropColumnQuery = $"ALTER TABLE {tableName} DROP COLUMN {dropColumnName};";
-
                             ExecuteNonQuery(connection, dropColumnQuery);
-                            Console.WriteLine($"Column '{dropColumnName}' muvaffaqiyatli o'chirildi.");
+                            Console.WriteLine($"Column '{dropColumnName}' deleted successfully.");
                             break;
 
                         case "3":
                             Console.Clear();
-                            Console.Write("Joriy column nomini kiriting: ");
+                            Console.Write("Enter the current column name: ");
                             string oldColumnName = Console.ReadLine();
 
-                            Console.Write("Yangi column nomini kiriting: ");
+                            Console.Write("Enter the new column name: ");
                             string newColumnNameForRename = Console.ReadLine();
 
                             string renameColumnQuery = $"ALTER TABLE {tableName} RENAME COLUMN {oldColumnName} TO {newColumnNameForRename};";
-
                             ExecuteNonQuery(connection, renameColumnQuery);
-                            Console.WriteLine($"Column '{oldColumnName}' muvaffaqiyatli '{newColumnNameForRename}' deb qayta nomlandi.");
+                            Console.WriteLine($"Column '{oldColumnName}' renamed to '{newColumnNameForRename}' successfully.");
                             break;
 
                         case "4":
                             Console.Clear();
-                            Console.Write("Yangi Table nomini kiriting: ");
+                            Console.Write("Enter the new table name: ");
                             string newTableName = Console.ReadLine();
 
                             string renameTableQuery = $"ALTER TABLE {tableName} RENAME TO {newTableName};";
-
                             ExecuteNonQuery(connection, renameTableQuery);
-                            Console.WriteLine($"Table '{tableName}' muvaffaqiyatli '{newTableName}' deb qayta nomlandi.");
+                            Console.WriteLine($"Table '{tableName}' renamed to '{newTableName}' successfully.");
                             break;
 
                         case "5":
                             Console.Clear();
-                            Console.Write("Turini o'zgartirmoqchi bo'lgan column nomini kiriting: ");
+                            Console.Write("Enter the name of the column to change its type: ");
                             string columnToChange = Console.ReadLine();
 
-                            Console.WriteLine("Column type'ini tanlang:");
+                            Console.WriteLine("Select the new data type:");
                             Console.WriteLine("1. VARCHAR(255)");
                             Console.WriteLine("2. INTEGER");
-                            Console.Write("Tanlash uchun raqamni kiriting: ");
+                            Console.Write("Enter the corresponding number: ");
                             string newDataType = "";
 
                             switch (Console.ReadLine())
                             {
                                 case "1":
-                                    dataType = "VARCHAR(255)";
+                                    newDataType = "VARCHAR(255)";
                                     break;
                                 case "2":
-                                    dataType = "INTEGER";
+                                    newDataType = "INTEGER";
                                     break;
                                 default:
-                                    Console.WriteLine("Noto'g'ri tanlov. Standart VARCHAR(255) tanlandi.");
-                                    dataType = "VARCHAR(255)";
+                                    Console.WriteLine("Invalid choice. Defaulting to VARCHAR(255).");
+                                    newDataType = "VARCHAR(255)";
                                     break;
                             }
-                            string changeColumnTypeQuery = $"ALTER TABLE {tableName} ALTER COLUMN {columnToChange} TYPE {newDataType};";
 
+                            string changeColumnTypeQuery = $"ALTER TABLE {tableName} ALTER COLUMN {columnToChange} TYPE {newDataType};";
                             ExecuteNonQuery(connection, changeColumnTypeQuery);
-                            Console.WriteLine($"Column '{columnToChange}' turi '{newDataType}' ga muvaffaqiyatli o'zgartirildi.");
+                            Console.WriteLine($"Column '{columnToChange}' type changed to '{newDataType}' successfully.");
                             break;
 
                         default:
-                            Console.WriteLine("Noto'g'ri variant tanlandi.");
+                            Console.WriteLine("Invalid option selected.");
                             break;
                     }
 
@@ -138,20 +131,23 @@ namespace DataBaseApp.Connections
             catch (NpgsqlException npgEx)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"Npgsql xatosi: {npgEx.Message}");
+                Console.WriteLine($"Npgsql error: {npgEx.Message}");
                 Console.ResetColor();
             }
             catch (Exception ex)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"Xatolik yuz berdi: {ex.Message}");
+                Console.WriteLine($"An error occurred: {ex.Message}");
                 Console.ResetColor();
             }
         }
 
-        private static void ExecuteNonQuery(NpgsqlConnection connection, string addColumnQuery)
+        private static void ExecuteNonQuery(NpgsqlConnection connection, string query)
         {
-            throw new NotImplementedException();
+            using (var cmd = new NpgsqlCommand(query, connection))
+            {
+                cmd.ExecuteNonQuery();
+            }
         }
     }
 }
