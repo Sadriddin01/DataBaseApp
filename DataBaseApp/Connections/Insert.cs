@@ -1,4 +1,5 @@
-﻿using Npgsql;
+﻿using DateBaseSQL.Methods;
+using Npgsql;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +15,8 @@ namespace DataBaseApp.Connections
             Console.Clear();
             try
             {
+
+                Select.GetTableNames(connectionString);
                 Console.Write("Enter the name of the table: ");
                 string tableName = Console.ReadLine();
 

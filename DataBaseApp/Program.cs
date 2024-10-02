@@ -118,7 +118,7 @@ public static class Program
                         Alter.AlterTable(connectionString);
                         break;
                     case 3:
-                        Console.WriteLine();
+                        Deleting.DeleteTable(connectionString);
                         break;
                     case 4:
                         Class1.Elements(connectionString);
@@ -126,7 +126,6 @@ public static class Program
                     case 5: 
                         Insert.InsertIntoColumn(connectionString);
                         break;
-
                     default:
                         Console.WriteLine("Error!!!");
                         break;
