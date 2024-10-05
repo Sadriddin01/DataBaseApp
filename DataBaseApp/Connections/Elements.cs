@@ -8,7 +8,7 @@ namespace DataBaseApp.Connections
 {
     public partial class Elements
     {
-        public static void Elements(string connectionString)
+        public static void Elementss(string connectionString)
         {
             // Retrieve and display available table names
             Select.GetTableNames(connectionString);
