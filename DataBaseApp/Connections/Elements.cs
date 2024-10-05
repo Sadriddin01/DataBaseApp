@@ -6,7 +6,7 @@ using DateBaseSQL.Methods;
 
 namespace DataBaseApp.Connections
 {
-    public partial class Class1
+    public partial class Elements
     {
         public static void Elements(string connectionString)
         {

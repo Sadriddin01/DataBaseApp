@@ -121,7 +121,7 @@ public static class Program
                         Deleting.DeleteTable(connectionString);
                         break;
                     case 4:
-                        Class1.Elements(connectionString);
+                        Elements.Elements(connectionString);
                         break;
                     case 5: 
                         Insert.InsertIntoColumn(connectionString);
