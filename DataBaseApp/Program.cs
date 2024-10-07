@@ -106,22 +106,22 @@ public static class Program
                 switch (selectedIndex)
                 {
                     case 0:
-                        Create.CreateTable(pgConnection);
+                        Create.CreateTable(connectionString);
                         break;
                     case 1:
-                        Select.GetTableNames(pgConnection);
+                        Select.GetTableNames(connectionString);
                         break;
                     case 2:
-                        Alter.AlterTable(pgConnection);
+                        Alter.AlterTable(connectionString);
                         break;
                     case 3:
-                        Deleting.DeleteTable(pgConnection);
+                        Deleting.DeleteTable(connectionString);
                         break;
                     case 4:
-                        Elements.Elementss(pgConnection);
+                        Elements.Elementss(connectionString);
                         break;
                     case 5:
-                        Insert.InsertIntoColumn(pgConnection);
+                        Insert.InsertIntoColumn(connectionString);
                         break;
                     case 6:
                         exit = true;
