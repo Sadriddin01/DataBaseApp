@@ -10,23 +10,19 @@ namespace DataBaseApp.Connections
     {
         public static void Elementss(string connectionString)
         {
-            // Retrieve and display available table names
             Select.GetTableNames(connectionString);
             Console.WriteLine("Choose the table: ");
             string tableName = Console.ReadLine();
 
-            // Check if the selected table exists
             if (Select.NotExist(connectionString, tableName))
             {
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("The table with that name does not exist!");
                 Console.ResetColor();
+                return; 
             }
-            else
-            {
-                // Display data from the selected table
-                Select.GetTableData(connectionString, tableName);
-            }
+
+            Select.GetTableData(connectionString, tableName);
         }
 
         public static void GetColumnData(string connectionString, string tableName, string columnName)
@@ -36,34 +32,42 @@ namespace DataBaseApp.Connections
                 using (var connection = new NpgsqlConnection(connectionString))
                 {
                     connection.Open();
+
+                    if (!ColumnExists(connection, tableName, columnName))
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine($"The column '{columnName}' does not exist in the table '{tableName}'.");
+                        return; 
+                    }
+
                     using (var command = connection.CreateCommand())
                     {
-                        command.CommandText = $"SELECT * FROM \"{tableName}\"";  // Retrieve all data from the table
+                        command.CommandText = $"SELECT \"{columnName}\" FROM \"{tableName}\""; 
                         using (var reader = command.ExecuteReader())
                         {
                             Console.ForegroundColor = ConsoleColor.Cyan;
                             Console.WriteLine($"\nData in the column '{columnName}' of table '{tableName}':");
                             while (reader.Read())
                             {
-                                Console.WriteLine(reader[columnName].ToString());  // Print each value in the specified column
+                                Console.WriteLine(reader[columnName]?.ToString()); 
                             }
-                            Console.ResetColor();
                         }
                     }
-                    connection.Close();
                 }
             }
             catch (NpgsqlException npgEx)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine($"Npgsql error: {npgEx.Message}");
-                Console.ResetColor();
             }
             catch (Exception ex)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine($"An error occurred: {ex.Message}");
-                Console.ResetColor();
+            }
+            finally
+            {
+                Console.ResetColor(); 
             }
         }
 
@@ -75,38 +79,47 @@ namespace DataBaseApp.Connections
                 {
                     connection.Open();
 
-                    // Create the SQL UPDATE query
                     var setClauses = string.Join(", ", newData.Keys.Select(key => $"\"{key}\" = @{key}"));
                     string query = $"UPDATE \"{tableName}\" SET {setClauses} WHERE \"{conditionColumn}\" = @conditionValue";
 
                     using (var command = new NpgsqlCommand(query, connection))
                     {
-                        // Add parameters to the query
                         foreach (var entry in newData)
                         {
                             command.Parameters.AddWithValue($"@{entry.Key}", entry.Value);
                         }
                         command.Parameters.AddWithValue("@conditionValue", conditionValue);
 
-                        // Execute the query and print how many rows were updated
                         int rowsAffected = command.ExecuteNonQuery();
                         Console.WriteLine($"{rowsAffected} rows updated.");
                     }
-
-                    connection.Close();
                 }
             }
             catch (NpgsqlException npgEx)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine($"Npgsql error: {npgEx.Message}");
-                Console.ResetColor();
             }
             catch (Exception ex)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine($"An error occurred: {ex.Message}");
-                Console.ResetColor();
+            }
+            finally
+            {
+                Console.ResetColor(); 
+            }
+        }
+
+        private static bool ColumnExists(NpgsqlConnection connection, string tableName, string columnName)
+        {
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = $"SELECT COUNT(*) FROM information_schema.columns WHERE table_name = @tableName AND column_name = @columnName";
+                command.Parameters.AddWithValue("@tableName", tableName);
+                command.Parameters.AddWithValue("@columnName", columnName);
+
+                return (long)command.ExecuteScalar() > 0; 
             }
         }
     }

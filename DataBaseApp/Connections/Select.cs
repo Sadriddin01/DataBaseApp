@@ -1,4 +1,5 @@
 ﻿using Npgsql;
+using System;
 using System.Data;
 
 namespace DateBaseSQL.Methods
@@ -13,22 +14,19 @@ namespace DateBaseSQL.Methods
                 using (var connection = new NpgsqlConnection(connectionString))
                 {
                     connection.Open();
-                    using (NpgsqlCommand command = connection.CreateCommand())
+                    var schema = connection.GetSchema("Tables");
+
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine("Tables in the database:");
+                    foreach (DataRow table in schema.Rows)
                     {
-                        var schema = connection.GetSchema("Tables");
-                        foreach (DataRow table in schema.Rows)
-                        {
-                            Console.ForegroundColor = ConsoleColor.Green;
-                            Console.WriteLine(table["TABLE_NAME"]);
-                        }
+                        Console.WriteLine(table["TABLE_NAME"]);
                     }
+                    Console.ResetColor();
 
                     Console.Write("\nEnter the name of the table you want to display: ");
                     string tableName = Console.ReadLine();
-                    GetTableData(connectionString, tableName);
 
-                    Console.Write("\nWhich table's columns do you want to view?: ");
-                    string columnName = Console.ReadLine();
                     if (NotExist(connectionString, tableName))
                     {
                         Console.ForegroundColor = ConsoleColor.Red;
@@ -37,7 +35,8 @@ namespace DateBaseSQL.Methods
                     }
                     else
                     {
-                        GetTableColumns(connectionString, tableName);
+                        GetTableData(connectionString, tableName);
+                        GetTableColumns(connectionString, tableName); 
                     }
                 }
             }
@@ -63,19 +62,15 @@ namespace DateBaseSQL.Methods
                 using (var connection = new NpgsqlConnection(connectionString))
                 {
                     connection.Open();
-                    using (NpgsqlCommand command = connection.CreateCommand())
-                    {
-                        var schema = connection.GetSchema("Columns", new string[] { null, null, tableName, null });
-                        Console.WriteLine($"\nColumns in the '{tableName}' table:");
-                        foreach (DataRow column in schema.Rows)
-                        {
-                            Console.ForegroundColor = ConsoleColor.Yellow;
-                            Console.WriteLine(column["COLUMN_NAME"]);
-                        }
-                        Console.ResetColor();
-                    }
+                    var schema = connection.GetSchema("Columns", new string[] { null, null, tableName, null });
 
-                    connection.Close();
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.WriteLine($"\nColumns in the '{tableName}' table:");
+                    foreach (DataRow column in schema.Rows)
+                    {
+                        Console.WriteLine(column["COLUMN_NAME"]);
+                    }
+                    Console.ResetColor();
                 }
             }
             catch (NpgsqlException npgEx)
@@ -94,7 +89,6 @@ namespace DateBaseSQL.Methods
 
         public static bool NotExist(string connectionString, string tableName)
         {
-            bool tableNotExist = true;
             try
             {
                 using (var connection = new NpgsqlConnection(connectionString))
@@ -106,12 +100,9 @@ namespace DateBaseSQL.Methods
                     {
                         if (row["TABLE_NAME"].ToString().Equals(tableName, StringComparison.OrdinalIgnoreCase))
                         {
-                            tableNotExist = false;
-                            break;
+                            return false; 
                         }
                     }
-
-                    connection.Close();
                 }
             }
             catch (Exception ex)
@@ -121,7 +112,7 @@ namespace DateBaseSQL.Methods
                 Console.ResetColor();
             }
 
-            return tableNotExist;
+            return true; 
         }
 
         public static void GetTableData(string connectionString, string tableName)
@@ -132,34 +123,26 @@ namespace DateBaseSQL.Methods
                 using (var connection = new NpgsqlConnection(connectionString))
                 {
                     connection.Open();
-                    using (NpgsqlCommand command = connection.CreateCommand())
+                    using (var command = new NpgsqlCommand($"SELECT * FROM \"{tableName}\"", connection))
+                    using (var reader = command.ExecuteReader())
                     {
-                        command.CommandText = $"SELECT * FROM \"{tableName}\"";
-
-                        using (var reader = command.ExecuteReader())
+                        Console.ForegroundColor = ConsoleColor.Cyan;
+                        for (int i = 0; i < reader.FieldCount; i++)
                         {
-                            // Display column names
-                            Console.ForegroundColor = ConsoleColor.Cyan;
+                            Console.Write(reader.GetName(i) + "\t");
+                        }
+                        Console.WriteLine();
+                        Console.ResetColor();
+
+                        while (reader.Read())
+                        {
                             for (int i = 0; i < reader.FieldCount; i++)
                             {
-                                Console.Write(reader.GetName(i) + "\t");
+                                Console.Write(reader.GetValue(i) + "\t");
                             }
                             Console.WriteLine();
-                            Console.ResetColor();
-
-                            // Display rows of data
-                            while (reader.Read())
-                            {
-                                for (int i = 0; i < reader.FieldCount; i++)
-                                {
-                                    Console.Write(reader.GetValue(i) + "\t");
-                                }
-                                Console.WriteLine();
-                            }
                         }
                     }
-
-                    connection.Close();
                 }
             }
             catch (NpgsqlException npgEx)
